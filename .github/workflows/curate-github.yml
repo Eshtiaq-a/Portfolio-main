@@ -1,0 +1,23 @@
+name: Curate public GitHub repositories
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  queue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the server-side curator to sync repositories
+        env:
+          CURATION_ENDPOINT: ${{ secrets.CURATION_ENDPOINT }}
+          CURATION_SECRET: ${{ secrets.CURATION_SECRET }}
+        run: |
+          test -n "$CURATION_ENDPOINT"
+          test -n "$CURATION_SECRET"
+          curl --fail-with-body --silent --show-error \
+            --request POST "$CURATION_ENDPOINT/sync/github" \
+            --header "Authorization: Bearer $CURATION_SECRET" \
+            --header "Content-Type: application/json" \
+            --data '{"username":"Eshtiaq-a"}'
